@@ -1,0 +1,8 @@
+.product-categories {
+    list-style: none;
+    padding: 0;
+}
+
+.product-categories li {
+    margin-bottom: 10px;
+}
