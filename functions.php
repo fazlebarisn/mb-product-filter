@@ -57,25 +57,52 @@ function mb_product_filter_shortcode()
 		
 		$terms = wp_get_object_terms($product_ids,'filter');
 
-		$filter_names = wp_list_pluck($terms, 'name');
+		
 
 
         // If there are matching 'filter' categories, display the filter form
-        if (!empty($filter_names)) {
+        if (!empty($terms)) {
 ?>
-            <form id="product-filter-form" action="" method="GET">
+            <form id="mb-product-filter-form" action="" method="GET">
                 <div class="mb-filter-wrap">
+					<h2 class="mb-filter-title">Filter</h2>
+					<div class="mb-filter-body">
                     <ul class="product-categories">
                         <?php
-                        foreach ($filter_names as $category) {
-                        ?>
-                            <li class="mb-parrent-cat" id="mb-parrent-cat-<?php echo esc_html($category->slug); ?>">
-                                <?php echo esc_html($category->name); ?>
-                            </li>
-                        <?php
+                        foreach ($terms as $category) {
+                            $children = get_term_children($category->term_id, 'filter');
+
+                            // Display main category only if it has children
+                            if (!empty($children)) {
+                                ?>
+                                <li class="mb-parrent-cat" id="mb-parrent-cat-<?php echo esc_html($category->slug); ?>">
+                                    <?php echo esc_html($category->name); ?>
+                                </li>
+                                <div class="mb-child-category-<?php echo esc_html($category->slug); ?>">
+									<div class="mb-list-group-item">	
+                                    <ul class="product-subcategories">
+                                        <?php
+                                        foreach ($children as $child_id) {
+                                            $child = get_term($child_id, 'filter');
+                                            ?>
+															
+                                            <li>
+                                                <input type="checkbox" name="product_category[]" value="<?php echo esc_attr($child->slug); ?>" <?php echo (isset($_GET['product_category']) && in_array($child->slug, $_GET['product_category'])) ? 'checked' : ''; ?>>
+                                                <?php echo esc_html($child->name); ?>
+                                            </li>
+											
+                                        <?php
+                                        }
+                                        ?>
+                                    </ul>
+										</div>
+                                </div>
+                                <?php
+                            }
                         }
                         ?>
                     </ul>
+					</div>
 
                     <p>
                         <input type="submit" value="Filter Products">
