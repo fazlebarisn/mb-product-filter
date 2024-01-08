@@ -59,20 +59,15 @@ function mb_product_filter_shortcode()
 
 		$filter_names = wp_list_pluck($terms, 'name');
 
-        $categories = array();
-        if (!empty($product_ids)) {
-            // Get 'filter' taxonomy terms assigned to products in the current 'mb-category'
-            $categories = get_the_terms($product_ids, 'filter');
-        }
 
         // If there are matching 'filter' categories, display the filter form
-        if (!empty($categories)) {
+        if (!empty($filter_names)) {
 ?>
             <form id="product-filter-form" action="" method="GET">
                 <div class="mb-filter-wrap">
                     <ul class="product-categories">
                         <?php
-                        foreach ($categories as $category) {
+                        foreach ($filter_names as $category) {
                         ?>
                             <li class="mb-parrent-cat" id="mb-parrent-cat-<?php echo esc_html($category->slug); ?>">
                                 <?php echo esc_html($category->name); ?>
