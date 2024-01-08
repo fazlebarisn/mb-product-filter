@@ -15,12 +15,12 @@
  */
 defined('ABSPATH') or die('Nice Try!');
 
-if ( ! defined( 'CANSOFT_FILTER_DIR_PATH' ) ) {
-	define( 'CANSOFT_FILTER_DIR_PATH', __DIR__ );
+if ( ! defined( 'MB_FILTER_DIR_PATH' ) ) {
+	define( 'MB_FILTER_DIR_PATH', __DIR__ );
 }
 
-define( 'CANSOFT_FILTER_FILE' , __FILE__ );
-define( 'CANSOFT_FILTER_URL' , plugins_url( '' , CANSOFT_FILTER_FILE ) );
-define( 'CANSOFT_FILTER_BASENAME' , plugin_basename(__FILE__) );
+define( 'MB_FILTER_FILE' , __FILE__ );
+define( 'MB_FILTER_URL' , plugins_url( '' , MB_FILTER_FILE ) );
+define( 'MB_FILTER_BASENAME' , plugin_basename(__FILE__) );
 
-require_once CANSOFT_FILTER_DIR_PATH . '/functions.php';
+require_once MB_FILTER_DIR_PATH . '/functions.php';
