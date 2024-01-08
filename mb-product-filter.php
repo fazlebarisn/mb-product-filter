@@ -23,4 +23,5 @@ define( 'MB_FILTER_FILE' , __FILE__ );
 define( 'MB_FILTER_URL' , plugins_url( '' , MB_FILTER_FILE ) );
 define( 'MB_FILTER_BASENAME' , plugin_basename(__FILE__) );
 
+require_once MB_FILTER_DIR_PATH . '/inc/assets.php';
 require_once MB_FILTER_DIR_PATH . '/functions.php';
