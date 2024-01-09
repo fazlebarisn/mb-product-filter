@@ -138,23 +138,52 @@ add_shortcode('mb_product_filter', 'mb_product_filter_shortcode');
 
 // Filter products based on selected categories
 function product_filter_function($query) {
+	
     if (is_admin() || !$query->is_main_query()) {
         return;
     }
 
     if (isset($_GET['filter'])) {
-        $filter_term = sanitize_text_field($_GET['filter']);
 
-        $query->set('tax_query', array(
+//           $query->set('tax_query', array(
+//             'relation' => 'AND',
+//             array(
+//                 'taxonomy' => 'filter',
+//                 'field'    => 'slug',
+//                 'terms'    => $_GET['filter'],
+//                 'operator' => 'IN',
+//             ),
+//         ));
+
+		 $taxonomy_query = array(
             array(
                 'taxonomy' => 'filter',
                 'field'    => 'slug',
-                'terms'    => $filter_term,
+                'terms'    => $_GET['filter'],
                 'operator' => 'IN',
             ),
-        ));
+        );
+		
+		  
+        if (is_product_category()) {
+            
+            $current_category = get_queried_object();
+
+            $taxonomy_query[] = array(
+                'taxonomy' => 'mb-category',
+                'field'    => 'id',
+                'terms'    => $current_category->term_id,
+            );
+        }
+
+        // Set the tax_query
+        $query->set('tax_query', $taxonomy_query);
+		
+        
+         //$query->set('post_type', 'product');
+ 		//dd($query);
     }
 }
 
 add_action('pre_get_posts', 'product_filter_function');
-?>
+
