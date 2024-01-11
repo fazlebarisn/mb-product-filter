@@ -1,0 +1,128 @@
+/* Chekbox design  */
+
+.cansoft-checkbox-wrapper {
+    display: flex;
+}
+
+.cansoft-checkbox {
+    background: #d3e3e3;
+    padding: 10px;
+    border: 1px solid #e8e5ef;
+    margin-right: 10px;
+    display: flex;
+    border-radius: 5px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cansoft-checkbox h3 {
+    font-size: 15px;
+    margin-right: 10px;
+}
+
+.cansoft-checkbox .tgl {
+    display: none;
+  }
+  .cansoft-checkbox .tgl,
+  .cansoft-checkbox .tgl:after,
+  .cansoft-checkbox .tgl:before,
+  .cansoft-checkbox .tgl *,
+  .cansoft-checkbox .tgl *:after,
+  .cansoft-checkbox .tgl *:before,
+  .cansoft-checkbox .tgl + .tgl-btn {
+    box-sizing: border-box;
+  }
+  .cansoft-checkbox .tgl::-moz-selection,
+  .cansoft-checkbox .tgl:after::-moz-selection,
+  .cansoft-checkbox .tgl:before::-moz-selection,
+  .cansoft-checkbox .tgl *::-moz-selection,
+  .cansoft-checkbox .tgl *:after::-moz-selection,
+  .cansoft-checkbox .tgl *:before::-moz-selection,
+  .cansoft-checkbox .tgl + .tgl-btn::-moz-selection,
+  .cansoft-checkbox .tgl::selection,
+  .cansoft-checkbox .tgl:after::selection,
+  .cansoft-checkbox .tgl:before::selection,
+  .cansoft-checkbox .tgl *::selection,
+  .cansoft-checkbox .tgl *:after::selection,
+  .cansoft-checkbox .tgl *:before::selection,
+  .cansoft-checkbox .tgl + .tgl-btn::selection {
+    background: none;
+  }
+  .cansoft-checkbox .tgl + .tgl-btn {
+    outline: 0;
+    display: block;
+    width: 4em;
+    height: 2em;
+    position: relative;
+    cursor: pointer;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+  }
+  .cansoft-checkbox .tgl + .tgl-btn:after,
+  .cansoft-checkbox .tgl + .tgl-btn:before {
+    position: relative;
+    display: block;
+    content: "";
+    width: 50%;
+    height: 100%;
+  }
+  .cansoft-checkbox .tgl + .tgl-btn:after {
+    left: 0;
+  }
+  .cansoft-checkbox .tgl + .tgl-btn:before {
+    display: none;
+  }
+  .cansoft-checkbox .tgl:checked + .tgl-btn:after {
+    left: 50%;
+  }
+
+  .cansoft-checkbox .tgl-cansoft + .tgl-btn {
+    overflow: hidden;
+    transform: skew(-10deg);
+    -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+    transition: all 0.2s ease;
+    font-family: sans-serif;
+    background: #888;
+  }
+  .cansoft-checkbox .tgl-cansoft + .tgl-btn:after,
+  .cansoft-checkbox .tgl-cansoft + .tgl-btn:before {
+    transform: skew(10deg);
+    display: inline-block;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    line-height: 2em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  }
+  .cansoft-checkbox .tgl-cansoft + .tgl-btn:after {
+    left: 100%;
+    content: attr(data-tg-on);
+  }
+  .cansoft-checkbox .tgl-cansoft + .tgl-btn:before {
+    left: 0;
+    content: attr(data-tg-off);
+  }
+  .cansoft-checkbox .tgl-cansoft + .tgl-btn:active {
+    background: #888;
+  }
+  .cansoft-checkbox .tgl-cansoft + .tgl-btn:active:before {
+    left: -10%;
+  }
+  .cansoft-checkbox .tgl-cansoft:checked + .tgl-btn {
+    background: #86d993;
+  }
+  .cansoft-checkbox .tgl-cansoft:checked + .tgl-btn:before {
+    left: -100%;
+  }
+  .cansoft-checkbox .tgl-cansoft:checked + .tgl-btn:after {
+    left: 0;
+  }
+  .cansoft-checkbox .tgl-cansoft:checked + .tgl-btn:active:after {
+    left: 10%;
+  }

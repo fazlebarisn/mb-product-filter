@@ -28,9 +28,11 @@ ul.product-categories {
 	border-bottom: 1px solid #ddd; 
 	padding:10px 15px;
 	margin: 0;
+    display: flex;
+    justify-content: space-between;
 }
 
-.mb-archive-page-wrapper ul.product-categories li.mb-parrent-cat:hover{
+.mb-archive-page-wrapper ul.product-categories > li.mb-parrent-cat:hover{
 	text-decoration:underline;
 	cursor:pointer;
 }
@@ -41,4 +43,27 @@ ul.product-subcategories li{
 .mb-list-group-item {
     padding: 15px;
     font-size: 12px;
+}
+
+input.mb-filter-submit {
+    background: #000;
+    color: #fff;
+    border: none;
+    text-transform: uppercase;
+}
+
+input.mb-filter-submit:hover{
+    background: #58585a;
+}
+
+.mb-archive-page-wrapper ul.product-categories li.mb-parrent-cat .toggle-container span.toggle-arrow {
+    color: #503b3b;
+    cursor: pointer;
+}
+.mb-archive-page-wrapper ul.product-categories li.mb-parrent-cat > .toggle-container > span.toggle-arrow:hover{
+    text-decoration: none !important;
+}
+
+.toggle-arrow.rotate-down::after {
+    content: "▲";
 }

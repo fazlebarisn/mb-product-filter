@@ -33,4 +33,34 @@
     toggleChild("mb-parrent-cat-skin-product-type", "skin-product-type");
     toggleChild("mb-parrent-cat-skin-type", "skin-type");
   });
+
+  $('#mb-product-filter-form_xx').submit(function(event) {
+    // Prevent the default form submission
+    event.preventDefault();
+
+    // Get the form data
+    var formData = $(this).serialize();
+
+    // Perform Ajax request
+    $.ajax({
+        type: 'GET', // Adjust the type if needed
+        url: ajaxurl, // WordPress Ajax URL
+        data: {
+            action: 'mb_product_filter_handler', // Custom action name
+            formData: formData,
+        },
+        success: function(response) {
+            // Handle the successful response
+            console.log(response);
+            // Update the page content or perform other actions based on the response
+        },
+        error: function(error) {
+            // Handle the error
+            console.log(error);
+        }
+    });
+});
+
 })(jQuery);
+
+
