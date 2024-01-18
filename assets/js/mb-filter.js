@@ -34,6 +34,47 @@
     toggleChild("mb-parrent-cat-skin-type", "skin-type");
   });
 
+  $('input[name="mb_filter[]"]').change(function () {
+    updateSelectedTerms();
+});
+
+$('.mb-filter-values').on('click', '.selected-term', function () {
+    var termName = $(this).text();
+    uncheckCheckbox(termName);
+    $(this).remove(); // Remove the clicked span
+});
+
+$('.mb-reset-button').click(function () {
+    resetCheckboxes();
+    $('.mb-filter-values').empty(); // Clear the displayed terms
+});
+
+function updateSelectedTerms() {
+    var selectedTerms = [];
+    $('input[name="mb_filter[]"]:checked').each(function () {
+        var selectedTermName = $(this).data('name');
+        selectedTerms.push(selectedTermName);
+    });
+
+    $('.mb-filter-values').empty();
+    selectedTerms.forEach(function (selectedTerm) {
+        $('<span title="Remove" class="selected-term">' + selectedTerm + '</span>').appendTo('.mb-filter-values');
+    });
+}
+
+function uncheckCheckbox(termName) {
+    $('input[name="mb_filter[]"]').filter(function () {
+        return $(this).data('name') === termName;
+    }).prop('checked', false);
+}
+
+function resetCheckboxes() {
+    $('input[name="mb_filter[]"]').prop('checked', false);
+}
+
+// Initial update on page load
+updateSelectedTerms();
+
 //   $('#mb-product-filter-form_xx').submit(function(event) {
 //     // Prevent the default form submission
 //     event.preventDefault();
