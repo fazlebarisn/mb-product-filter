@@ -34,33 +34,28 @@
     toggleChild("mb-parrent-cat-skin-type", "skin-type");
   });
 
-  $('#mb-product-filter-form_xx').submit(function(event) {
-    // Prevent the default form submission
-    event.preventDefault();
+//   $('#mb-product-filter-form_xx').submit(function(event) {
+//     // Prevent the default form submission
+//     event.preventDefault();
 
-    // Get the form data
-    var formData = $(this).serialize();
+//     var formData = $(this).serialize();
 
-    // Perform Ajax request
-    $.ajax({
-        type: 'GET', // Adjust the type if needed
-        url: ajaxurl, // WordPress Ajax URL
-        data: {
-            action: 'mb_product_filter_handler', // Custom action name
-            formData: formData,
-        },
-        success: function(response) {
-            // Handle the successful response
-            console.log(response);
-            // Update the page content or perform other actions based on the response
-        },
-        error: function(error) {
-            // Handle the error
-            console.log(error);
-        }
-    });
-});
+//     // Perform Ajax request
+//     $.ajax({
+//         type: 'GET',
+//         url: ajaxurl,
+//         data: {
+//             action: 'mb_product_filter_handler',
+//             formData: formData,
+//         },
+//         success: function(response) {
+//           // console.log(response);
+//             $('section.mb-archive-page-wrapper ul.products.columns-4').html(response);
+//         },
+//         error: function(error) {
+//           $('section.mb-archive-page-wrapper ul.products.columns-4').html(error);
+//         }
+//     });
+// });
 
 })(jQuery);
-
-

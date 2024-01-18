@@ -5,18 +5,18 @@ function mb_product_filter_shortcode()
     ob_start();
 
     // Check if it's a 'mb-category' category page
-    $userLocationMetaKey = isset($_COOKIE['mb_shipping_store']) ? $_COOKIE['mb_shipping_store'] : "T2G 4C2";
+    // $userLocationMetaKey = isset($_COOKIE['mb_shipping_store']) ? $_COOKIE['mb_shipping_store'] : "T2G 4C2";
 
-    $post_id = get_posts(array(
-        'numberposts' => 1,
-        'meta_key' => 'zip_code',
-        'meta_value' => $userLocationMetaKey,
-        'meta_compare' => '=',
-        'post_type' => 'location',
-        'fields' => 'ids'
-    ))[0];
+    // $post_id = get_posts(array(
+    //     'numberposts' => 1,
+    //     'meta_key' => 'zip_code',
+    //     'meta_value' => $userLocationMetaKey,
+    //     'meta_compare' => '=',
+    //     'post_type' => 'location',
+    //     'fields' => 'ids'
+    // ))[0];
 
-    $locationId = get_post_meta($post_id, "location_id", true);
+    // $locationId = get_post_meta($post_id, "location_id", true);
     // $userSelectedStoreId = "store_" . $locationId;
 
     $category = get_queried_object();
@@ -25,21 +25,20 @@ function mb_product_filter_shortcode()
     if (is_shop()) {
         // Code for the shop page
         $args = array(
-            'posts_per_page' => -1,
+            'posts_per_page' => 1000,
             'post_type'      => 'product',
             'meta_query'     => array(
-                'relation' => 'AND',
-                array(
-                    'key'     => 'store_10',
-                    'value'   => 0,
-                    'compare' => '>',
-                    'type'    => 'NUMERIC',
-                ),
                 array(
                     'key'     => 'status',
                     'value'   => 1,
                     'compare' => '=',
                     'type'    => 'NUMERIC',
+                ),
+            ),
+            'tax_query'      => array(
+                array(
+                    'taxonomy' => 'filter',
+                    'operator' => 'EXISTS',
                 ),
             ),
         );
@@ -49,13 +48,6 @@ function mb_product_filter_shortcode()
             'posts_per_page' => -1,
             'post_type'      => 'product',
             'meta_query'     => array(
-                'relation' => 'AND',
-                array(
-                    'key'     => 'store_10',
-                    'value'   => 0,
-                    'compare' => '>',
-                    'type'    => 'NUMERIC',
-                ),
                 array(
                     'key'     => 'status',
                     'value'   => 1,
@@ -75,13 +67,12 @@ function mb_product_filter_shortcode()
     }
 
     $products = get_posts($args);
-
     // Check if the query was successful before proceeding
     if (!empty($products)) {
         $terms = wp_get_object_terms(wp_list_pluck($products, 'ID'), 'filter');
 
         // If there are matching 'filter' categories, display the filter form
-?>
+        ?>
         <form id="mb-product-filter-form" action="" method="GET">
             <div class="mb-filter-wrap">
                 <h2 class="mb-filter-title">Filter</h2>
@@ -90,10 +81,10 @@ function mb_product_filter_shortcode()
                         <?php
                         foreach ($terms as $category) {
                             $children = get_term_children($category->term_id, 'filter');
-
+        
                             // Display main category only if it has children
                             if (!empty($children)) {
-                        ?>
+                                ?>
                                 <li class="mb-parrent-cat" id="mb-parrent-cat-<?php echo esc_html($category->slug); ?>">
                                     <?php echo esc_html($category->name); ?>
                                     <div class="toggle-container">
@@ -104,12 +95,13 @@ function mb_product_filter_shortcode()
                                     <div class="mb-list-group-item">
                                         <ul class="product-subcategories">
                                             <?php
-                                            foreach ($children as $child_id) {
-                                                $child = get_term($child_id, 'filter');
-                                            ?>
+                                            $child_names = wp_list_pluck(get_terms('filter', array('parent' => $category->term_id)), 'name');
+                                            foreach ($child_names as $child_name) {
+                                                $child_slug = sanitize_title($child_name);
+                                                ?>
                                                 <li>
-                                                    <input type="checkbox" name="mb_filter[]" value="<?php echo esc_attr($child->slug); ?>" <?php echo (isset($_GET['mb_filter']) && in_array($child->slug, $_GET['mb_filter'])) ? 'checked' : ''; ?>>
-                                                    <?php echo esc_html($child->name); ?>
+                                                    <input type="checkbox" name="mb_filter[]" value="<?php echo esc_attr($child_slug); ?>" <?php echo (isset($_GET['mb_filter']) && in_array($child_slug, $_GET['mb_filter'])) ? 'checked' : ''; ?>>
+                                                    <?php echo esc_html($child_name); ?>
                                                 </li>
                                             <?php
                                             }
@@ -117,7 +109,7 @@ function mb_product_filter_shortcode()
                                         </ul>
                                     </div>
                                 </div>
-                        <?php
+                                <?php
                             }
                         }
                         ?>
@@ -125,11 +117,11 @@ function mb_product_filter_shortcode()
                 </div>
                 <p>
                     <input type="submit" class="mb-filter-submit" value="Filter Products">
-                    <!-- <input type="reset" value="Reset Filter"> -->
                 </p>
             </div>
         </form>
-<?php
+        <?php
+        
     }
 
     // Get the output buffer contents and clean the buffer
@@ -141,94 +133,112 @@ function mb_product_filter_shortcode()
 add_shortcode('mb_product_filter', 'mb_product_filter_shortcode');
 
 
-function mb_product_filter_handler()
-{
-    // Retrieve the form data
-    parse_str($_GET['formData'], $form_data);
+// function mb_product_filter_handler() {
+//     // Retrieve the form data
+//     if( isset( $_GET['formData'] ) ){
+//         parse_str($_GET['formData'], $form_data_array);
+//         $category_id = $form_data_array['mb_category_id'];
+//         $is_shop = $form_data_array['is_shop'];
+//         $checkbox_values = isset($form_data_array['mb_filter']) ? $form_data_array['mb_filter'] : array();
 
-    // Define default args
-    $args = array(
-        'posts_per_page' => 12,
-        'paged'          => get_query_var('paged') ? get_query_var('paged') : 1,
-        'post_type'      => 'product',
-        'meta_query'     => array(
-            'relation' => 'AND',
-            array(
-                'key'     => 'store_10',
-                'value'   => 0,
-                'compare' => '>',
-                'type'    => 'NUMERIC',
-            ),
-            array(
-                'key'     => 'status',
-                'value'   => 1,
-                'compare' => '=',
-                'type'    => 'NUMERIC',
-            ),
-        ),
-        'tax_query'      => array(
-            array(
-                'taxonomy' => 'mb-category',
-                'field'    => 'id',
-                'terms'    => $form_data['mb_category_id'],
-                'operator' => 'IN',
-            ),
-        ),
-    );
+//         // Define default args
+//         if( $is_shop ){
+//             $args = array(
+//                 'posts_per_page' => 12,
+//                 'paged'          => get_query_var('paged') ? get_query_var('paged') : 1,
+//                 'post_type'      => 'product',
+//                 'meta_query'     => array(
+//                     array(
+//                         'key'     => 'status',
+//                         'value'   => 1,
+//                         'compare' => '=',
+//                         'type'    => 'NUMERIC',
+//                     ),
+//                 ),
+//                 'tax_query'      => array(
+//                     array(
+//                         'taxonomy' => 'filter',
+//                         'field'    => 'slug',
+//                         'terms'    => $checkbox_values,
+//                         'operator' => 'IN',
+//                     ),
+//                 ),
+//             );
+//         }else{
+//             $args = array(
+//                 'posts_per_page' => 12,
+//                 'paged'          => get_query_var('paged') ? get_query_var('paged') : 1,
+//                 'post_type'      => 'product',
+//                 'meta_query'     => array(
+//                     array(
+//                         'key'     => 'status',
+//                         'value'   => 1,
+//                         'compare' => '=',
+//                         'type'    => 'NUMERIC',
+//                     ),
+//                 ),
+//                 'tax_query'      => array(
+//                     array(
+//                         'taxonomy' => 'mb-category',
+//                         'field'    => 'id',
+//                         'terms'    => $category_id,
+//                         'operator' => 'IN',
+//                     ),
+//                     array(
+//                         'taxonomy' => 'filter',
+//                         'field'    => 'slug',
+//                         'terms'    => $checkbox_values,
+//                         'operator' => 'IN',
+//                     ),
+//                 ),
+//             );
+//         }
+        
 
-    // Merge the default args with the form data
-    $args = array_merge($args, $form_data);
+//         $products = new WP_Query($args);
+//     }
 
-    // Query posts
-    $products = new WP_Query($args);
+//     // Your loop to display posts goes here
+//     if ($products->have_posts()) {
+//         do_action('woocommerce_before_shop_loop');
 
-    // Your loop to display posts goes here
-    if ($products->have_posts()) {
+//         woocommerce_product_loop_start();
 
-        do_action('woocommerce_before_shop_loop');
+//         // if (wc_get_loop_prop('total')) {
+//             // dd($products);
+//             while ($products->have_posts()) {
+//                 $products->the_post();
 
-        woocommerce_product_loop_start();
+//                 // $stock = get_post_meta($product->get_id(), "store_10", true);
+//                 // var_dump($stock);
 
-        if (wc_get_loop_prop('total')) {
+//                 /**
+//                  * Hook: woocommerce_shop_loop.
+//                  */
+//                 do_action('woocommerce_shop_loop');
 
-            while ($products->have_posts()) {
-                $products->the_post();
-                do_action('woocommerce_shop_loop');
-                wc_get_template_part('content', 'product');
-            }
-        }
+//                 wc_get_template_part('content', 'product');
+//             }
+//         // }
 
-        woocommerce_product_loop_end();
-        wp_reset_postdata();
+//         woocommerce_product_loop_end();
+//         wp_reset_postdata();
 
-        /**
-         * Hook: woocommerce_after_shop_loop.
-         *
-         * @hooked woocommerce_pagination - 10
-         */
-        do_action('woocommerce_after_shop_loop');
-        // Pagination
-        if ($products->max_num_pages > 1) {
-            $current_page = max(1, get_query_var('paged'));
+//         /**
+//          * Hook: woocommerce_after_shop_loop.
+//          *
+//          * @hooked woocommerce_pagination - 10
+//          */
+//         do_action('woocommerce_after_shop_loop');
+        
+//     } else {
+//         do_action('woocommerce_no_products_found');
+//     }
+    
+//     // Reset post data
+//     wp_reset_postdata();
 
-            echo '<div class="mb-pagination">';
-            echo paginate_links(array(
-                'total'      => $products->max_num_pages,
-                'current'    => $current_page,
-                'prev_text'  => '&laquo;',
-                'next_text'  => '&raquo;',
-            ));
-            echo '</div>';
-        }
-    } else {
-        do_action('woocommerce_no_products_found');
-    }
-
-    // Reset post data
-    wp_reset_postdata();
-
-    // Send a response (you can customize this based on your needs)
-    wp_send_json_success('Form submitted successfully!');
-}
-add_action('wp_ajax_mb_product_filter_handler', 'mb_product_filter_handler');
-add_action('wp_ajax_nopriv_mb_product_filter_handler', 'mb_product_filter_handler'); // If you want to handle non-logged-in users
+//     wp_die();
+// }
+// add_action('wp_ajax_mb_product_filter_handler', 'mb_product_filter_handler');
+// add_action('wp_ajax_nopriv_mb_product_filter_handler', 'mb_product_filter_handler'); // If you want to handle non-logged-in users
