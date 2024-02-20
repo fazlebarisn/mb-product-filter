@@ -4,26 +4,27 @@ function mb_product_filter_shortcode()
 {
     ob_start();
 
-    // Check if it's a 'mb-category' category page
-    // $userLocationMetaKey = isset($_COOKIE['mb_shipping_store']) ? $_COOKIE['mb_shipping_store'] : "T2G 4C2";
-
-    // $post_id = get_posts(array(
-    //     'numberposts' => 1,
-    //     'meta_key' => 'zip_code',
-    //     'meta_value' => $userLocationMetaKey,
-    //     'meta_compare' => '=',
-    //     'post_type' => 'location',
-    //     'fields' => 'ids'
-    // ))[0];
-
-    // $locationId = get_post_meta($post_id, "location_id", true);
-    // $userSelectedStoreId = "store_" . $locationId;
-
     $category = get_queried_object();
     $category_id = absint($category->term_id);
-    
-    if (is_shop()) {
-        // Code for the shop page
+    // var_dump( is_search() );
+    if (is_search()) {
+        // Code for the search page
+        $args = array(
+            'posts_per_page' => 100,
+            'post_type'      => 'product',
+            'meta_query'     => array(
+                array(
+                    'key'     => 'status',
+                    'value'   => 1,
+                    'compare' => '=',
+                    'type'    => 'NUMERIC',
+                ),
+            ),
+            // Add additional search-related conditions if needed
+            's' => get_search_query(), // Include the search query in the args
+        );
+    } elseif (function_exists('is_shop') && is_shop()) {
+        // Code for the shop page (WooCommerce)
         $args = array(
             'posts_per_page' => 1000,
             'post_type'      => 'product',
@@ -89,7 +90,7 @@ function mb_product_filter_shortcode()
                                 <li class="mb-parrent-cat" id="mb-parrent-cat-<?php echo esc_html($category_term->slug); ?>">
                                     <?php echo esc_html($category_term->name); ?>
                                     <div class="toggle-container">
-                                        <span class="toggle-arrow">▼</span>
+                                        <span class="toggle-arrow"><i class="fa fa-angle-up"></i></span>
                                     </div>
                                 </li>
                                 <div class="mb-child-category-<?php echo esc_html($category_term->slug); ?>">
@@ -103,7 +104,23 @@ function mb_product_filter_shortcode()
                                                 $child_slug = sanitize_title($child_name);
                                                 // Check if there are products associated with the current child category
 
-                                                if( is_shop() ){
+                                                if (is_search()) {
+                                                    // Code for the search page
+                                                    $child_args = array(
+                                                        'posts_per_page' => 1,
+                                                        'post_type'      => 'product',
+                                                        'tax_query'      => array(
+                                                            array(
+                                                                'taxonomy' => 'filter',
+                                                                'field'    => 'id',
+                                                                'terms'    => $child_term->term_id,
+                                                                'operator' => 'IN',
+                                                            ),
+                                                        ),
+                                                        's' => get_search_query(),
+                                                    );
+                                                } elseif (function_exists('is_shop') && is_shop()) {
+                                                    // Code for the shop page (WooCommerce)
                                                     $child_args = array(
                                                         'posts_per_page' => 1,
                                                         'post_type'      => 'product',
@@ -116,7 +133,8 @@ function mb_product_filter_shortcode()
                                                             ),
                                                         ),
                                                     );
-                                                }else{
+                                                } else {
+                                                    // Code for other pages
                                                     $child_args = array(
                                                         'posts_per_page' => 1,
                                                         'post_type'      => 'product',
@@ -142,7 +160,7 @@ function mb_product_filter_shortcode()
                                                 if (!empty($child_products)) {
                                                     ?>
                                                     <li>
-                                                        <input type="checkbox" name="mb_filter[]" value="<?php echo esc_attr($child_slug); ?>" <?php echo (isset($_GET['mb_filter']) && in_array($child_slug, $_GET['mb_filter'])) ? 'checked' : ''; ?>>
+                                                    <input type="checkbox" name="mb_filter[]" value="<?php echo esc_attr($child_slug); ?>" data-name="<?php echo esc_attr($child_name); ?>" <?php echo (isset($_GET['mb_filter']) && in_array($child_slug, $_GET['mb_filter'])) ? 'checked' : ''; ?>>
                                                         <?php echo esc_html($child_name); ?>
                                                     </li>
                                                     <?php
@@ -158,8 +176,11 @@ function mb_product_filter_shortcode()
                         ?>
                     </ul>
                 </div>
-                <p>
+                <div class="mb-filter-values">
+                </div>
+                <p class="pt-2 d-flex justify-content-between align-items-center">
                     <input type="submit" class="mb-filter-submit" value="Filter Products">
+                    <input type="button" class="mb-reset-button" value="RESET">
                 </p>
             </div>
         </form>
@@ -173,114 +194,3 @@ function mb_product_filter_shortcode()
 
 // Register the shortcode
 add_shortcode('mb_product_filter', 'mb_product_filter_shortcode');
-
-
-// function mb_product_filter_handler() {
-//     // Retrieve the form data
-//     if( isset( $_GET['formData'] ) ){
-//         parse_str($_GET['formData'], $form_data_array);
-//         $category_id = $form_data_array['mb_category_id'];
-//         $is_shop = $form_data_array['is_shop'];
-//         $checkbox_values = isset($form_data_array['mb_filter']) ? $form_data_array['mb_filter'] : array();
-
-//         // Define default args
-//         if( $is_shop ){
-//             $args = array(
-//                 'posts_per_page' => 12,
-//                 'paged'          => get_query_var('paged') ? get_query_var('paged') : 1,
-//                 'post_type'      => 'product',
-//                 'meta_query'     => array(
-//                     array(
-//                         'key'     => 'status',
-//                         'value'   => 1,
-//                         'compare' => '=',
-//                         'type'    => 'NUMERIC',
-//                     ),
-//                 ),
-//                 'tax_query'      => array(
-//                     array(
-//                         'taxonomy' => 'filter',
-//                         'field'    => 'slug',
-//                         'terms'    => $checkbox_values,
-//                         'operator' => 'IN',
-//                     ),
-//                 ),
-//             );
-//         }else{
-//             $args = array(
-//                 'posts_per_page' => 12,
-//                 'paged'          => get_query_var('paged') ? get_query_var('paged') : 1,
-//                 'post_type'      => 'product',
-//                 'meta_query'     => array(
-//                     array(
-//                         'key'     => 'status',
-//                         'value'   => 1,
-//                         'compare' => '=',
-//                         'type'    => 'NUMERIC',
-//                     ),
-//                 ),
-//                 'tax_query'      => array(
-//                     array(
-//                         'taxonomy' => 'mb-category',
-//                         'field'    => 'id',
-//                         'terms'    => $category_id,
-//                         'operator' => 'IN',
-//                     ),
-//                     array(
-//                         'taxonomy' => 'filter',
-//                         'field'    => 'slug',
-//                         'terms'    => $checkbox_values,
-//                         'operator' => 'IN',
-//                     ),
-//                 ),
-//             );
-//         }
-        
-
-//         $products = new WP_Query($args);
-//     }
-
-//     // Your loop to display posts goes here
-//     if ($products->have_posts()) {
-//         do_action('woocommerce_before_shop_loop');
-
-//         woocommerce_product_loop_start();
-
-//         // if (wc_get_loop_prop('total')) {
-//             // dd($products);
-//             while ($products->have_posts()) {
-//                 $products->the_post();
-
-//                 // $stock = get_post_meta($product->get_id(), "store_10", true);
-//                 // var_dump($stock);
-
-//                 /**
-//                  * Hook: woocommerce_shop_loop.
-//                  */
-//                 do_action('woocommerce_shop_loop');
-
-//                 wc_get_template_part('content', 'product');
-//             }
-//         // }
-
-//         woocommerce_product_loop_end();
-//         wp_reset_postdata();
-
-//         /**
-//          * Hook: woocommerce_after_shop_loop.
-//          *
-//          * @hooked woocommerce_pagination - 10
-//          */
-//         do_action('woocommerce_after_shop_loop');
-        
-//     } else {
-//         do_action('woocommerce_no_products_found');
-//     }
-    
-//     // Reset post data
-//     wp_reset_postdata();
-
-//     wp_die();
-// }
-// add_action('wp_ajax_mb_product_filter_handler', 'mb_product_filter_handler');
-// add_action('wp_ajax_nopriv_mb_product_filter_handler', 'mb_product_filter_handler'); // If you want to handle non-logged-in users
